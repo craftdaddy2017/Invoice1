@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Client, Address } from '../types';
 import { INDIAN_STATES } from '../constants';
@@ -12,6 +11,7 @@ interface ClientListProps {
 const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [gstinError, setGstinError] = useState<string | null>(null);
 
   const initialClient: Client = {
     id: `client-${Date.now()}`,
@@ -31,13 +31,43 @@ const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) =>
 
   const [formData, setFormData] = useState<Client>(initialClient);
 
-  // Auto-extract PAN from GSTIN
+  // Auto-extract PAN from GSTIN and Validate
   useEffect(() => {
-    if (formData.gstin && formData.gstin.length === 15) {
-      const extractedPan = formData.gstin.substring(2, 12).toUpperCase();
-      if (formData.pan !== extractedPan) {
-        setFormData(prev => ({ ...prev, pan: extractedPan }));
+    if (formData.gstin) {
+      const gstin = formData.gstin.toUpperCase();
+      
+      // Basic format validation
+      // 2 digits (state) + 5 chars + 4 digits + 1 char (PAN) + 1 char (entity) + Z (fixed) + 1 char (checksum)
+      const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      
+      if (gstin.length > 0 && gstin.length < 15) {
+        setGstinError('GSTIN must be 15 characters long');
+      } else if (gstin.length === 15) {
+        if (!gstinRegex.test(gstin)) {
+          setGstinError('Invalid GSTIN format (e.g. 07AAAAA0000A1Z1)');
+        } else {
+          // Check state code
+          const stateCode = gstin.substring(0, 2);
+          const stateExists = INDIAN_STATES.some(s => s.code === stateCode);
+          if (!stateExists) {
+            setGstinError(`State code ${stateCode} is not recognized`);
+          } else {
+            setGstinError(null);
+          }
+        }
+      } else {
+        setGstinError(null);
       }
+
+      // PAN extraction
+      if (gstin.length >= 12) {
+        const extractedPan = gstin.substring(2, 12).toUpperCase();
+        if (formData.pan !== extractedPan) {
+          setFormData(prev => ({ ...prev, pan: extractedPan }));
+        }
+      }
+    } else {
+      setGstinError(null);
     }
   }, [formData.gstin]);
 
@@ -45,16 +75,22 @@ const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) =>
     setFormData(client);
     setEditingClient(client);
     setShowForm(true);
+    setGstinError(null);
   };
 
   const handleAdd = () => {
     setFormData({ ...initialClient, id: `client-${Date.now()}` });
     setEditingClient(null);
     setShowForm(true);
+    setGstinError(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.gstin && gstinError) {
+      alert('Please fix the GSTIN validation errors before saving.');
+      return;
+    }
     onSave(formData);
     setShowForm(false);
   };
@@ -98,7 +134,7 @@ const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) =>
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
-              <div>
+              <div className="col-span-2 md:col-span-1">
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email Address</label>
                 <input 
                   type="email" 
@@ -107,18 +143,21 @@ const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) =>
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">GSTIN (15 Digits)</label>
+              <div className="col-span-2 md:col-span-1">
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  GSTIN (15 Digits)
+                </label>
                 <input 
                   type="text" 
                   maxLength={15}
                   placeholder="e.g. 07AAAAA0000A1Z1"
-                  className="w-full p-2 border rounded-lg bg-gray-50 text-gray-900 outline-none focus:ring-2 focus:ring-indigo-500 uppercase"
+                  className={`w-full p-2 border rounded-lg bg-gray-50 text-gray-900 outline-none transition-all uppercase ${gstinError ? 'border-red-500 ring-1 ring-red-500' : 'focus:ring-2 focus:ring-indigo-500'}`}
                   value={formData.gstin}
                   onChange={e => setFormData({ ...formData, gstin: e.target.value.toUpperCase() })}
                 />
+                {gstinError && <p className="mt-1 text-[10px] text-red-500 font-bold uppercase tracking-tight">{gstinError}</p>}
               </div>
-              <div>
+              <div className="col-span-2 md:col-span-1">
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">PAN (Auto-filled)</label>
                 <input 
                   type="text" 
@@ -187,7 +226,7 @@ const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) =>
               </button>
               <button 
                 type="submit" 
-                className="flex-1 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition"
+                className={`flex-1 py-3 rounded-lg font-bold transition text-white ${gstinError ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
               >
                 {editingClient ? 'Update Client' : 'Add Client'}
               </button>
@@ -221,8 +260,8 @@ const ClientList: React.FC<ClientListProps> = ({ clients, onSave, onDelete }) =>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-3">
-                      <button onClick={() => handleEdit(client)} className="text-indigo-600 hover:text-indigo-800 text-sm font-bold">Edit</button>
-                      <button onClick={() => onDelete(client.id)} className="text-red-500 hover:text-red-700 text-sm font-bold">Delete</button>
+                      <button onClick={() => handleEdit(client)} className="text-indigo-600 hover:text-indigo-800 text-sm font-bold transition">Edit</button>
+                      <button onClick={() => onDelete(client.id)} className="text-red-500 hover:text-red-700 text-sm font-bold transition">Delete</button>
                     </div>
                   </td>
                 </tr>
