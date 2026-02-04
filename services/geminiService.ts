@@ -1,10 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize with process.env.API_KEY as per instructions
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const suggestLineItemsFromPrompt = async (prompt: string) => {
   try {
+    const apiKey = process.env.API_KEY;
+    
+    if (!apiKey || apiKey.trim() === "") {
+      console.warn('Gemini API key is not configured. Please add API_KEY to your environment variables.');
+      return [];
+    }
+
+    // Initialize inside the function to avoid top-level crashes if API_KEY is missing
+    const ai = new GoogleGenAI({ apiKey: apiKey });
+
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Extract a list of professional invoice line items (description, quantity, estimated market rate in INR, and common GST percentage for that item in India) from the following business scenario: "${prompt}"`,
@@ -43,7 +50,6 @@ export const suggestLineItemsFromPrompt = async (prompt: string) => {
       }
     });
 
-    // Directly access .text property as per guidelines
     const text = response.text;
     if (!text) return [];
     
