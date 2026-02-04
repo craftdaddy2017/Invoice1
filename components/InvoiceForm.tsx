@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   Invoice, 
@@ -55,7 +54,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
   }, [invoice.placeOfSupply, userProfile.address.stateCode]);
 
   const totals = useMemo(() => {
-    return invoice.items.reduce((acc, item) => {
+    return (invoice.items || []).reduce((acc, item) => {
       const calc = calculateLineItem(item, isInterState);
       return {
         taxable: acc.taxable + calc.taxableValue,
@@ -90,7 +89,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
     if (!aiPrompt.trim()) return;
     setIsAiLoading(true);
     const suggested = await suggestLineItemsFromPrompt(aiPrompt);
-    const mapped = suggested.map((s: any) => ({ ...s, id: Math.random().toString(36).substr(2, 9) }));
+    // Using slice instead of deprecated substr
+    const mapped = suggested.map((s: any) => ({ ...s, id: Math.random().toString(36).slice(2, 11) }));
     setInvoice(prev => ({ ...prev, items: [...prev.items, ...mapped] }));
     setAiPrompt('');
     setIsAiLoading(false);
@@ -262,7 +262,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
 
       {/* RIGHT: LIVE PREVIEW AREA */}
       <div className="flex-1 bg-[#f0f0f7] overflow-y-auto p-4 lg:p-12 flex justify-center items-start no-print">
-        <div id="invoice-sheet" className="w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[10mm] flex flex-col font-sans text-gray-900 overflow-hidden relative border border-gray-100">
+        <div id="invoice-sheet" className="w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[10mm] flex flex-col font-sans text-gray-900 overflow-hidden relative border border-gray-200">
           
           <div className="flex justify-between items-start mb-8">
             <div className="w-1/2">
@@ -282,7 +282,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
                   </div>
                </div>
             </div>
-            {/* LOGO CONTAINER: Using userProfile.logoUrl (Craft Daddy brand logo) directly */}
             <div className="w-1/2 flex justify-end items-start pt-2 min-h-[100px]">
                <img src={userProfile.logoUrl || CRAFT_DADDY_LOGO_SVG} className="max-h-24 w-auto object-contain block" alt="Craft Daddy Logo" />
             </div>
@@ -335,7 +334,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                   {invoice.items.map((item, idx) => {
+                   {(invoice.items || []).map((item, idx) => {
                      const calc = calculateLineItem(item, isInterState);
                      return (
                         <tr key={item.id} className="text-[11px] text-gray-700 bg-gray-50/20">

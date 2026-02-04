@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   define: {
-    // Shimming process.env for the browser
+    // Standardizing process.env access for browser
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
   },
@@ -18,6 +18,7 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     emptyOutDir: true,
+    target: 'esnext',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -25,5 +26,8 @@ export default defineConfig({
         },
       },
     },
+  },
+  resolve: {
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   }
 });
