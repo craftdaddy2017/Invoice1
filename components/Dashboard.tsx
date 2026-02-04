@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -12,33 +11,33 @@ interface DashboardProps {
   leads: Lead[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ invoices, leads }) => {
+const Dashboard: React.FC<DashboardProps> = ({ invoices = [], leads = [] }) => {
   const calculateTotal = (inv: Invoice) => 
-    inv.items.reduce((sum, item) => sum + (item.qty * item.rate * (1 + item.taxRate / 100)), 0);
+    (inv.items || []).reduce((sum, item) => sum + (item.qty * item.rate * (1 + item.taxRate / 100)), 0);
 
   const totalRevenue = invoices
     .filter(inv => inv.status === InvoiceStatus.PAID)
     .reduce((sum, inv) => sum + calculateTotal(inv), 0);
 
   const outstanding = invoices
-    .filter(inv => inv.status === InvoiceStatus.SENT || inv.status === InvoiceStatus.OVERDUE || inv.status === InvoiceStatus.DRAFT)
+    .filter(inv => inv.status !== InvoiceStatus.PAID)
     .reduce((sum, inv) => sum + calculateTotal(inv), 0);
 
-  const leadValue = leads.reduce((sum, l) => sum + l.value, 0);
+  const leadValue = leads.reduce((sum, l) => sum + (l.value || 0), 0);
 
   const chartData = [
     { name: 'Jan', sales: 45000 },
     { name: 'Feb', sales: 52000 },
     { name: 'Mar', sales: 48000 },
     { name: 'Apr', sales: 61000 },
-    { name: 'May', sales: totalRevenue },
+    { name: 'May', sales: totalRevenue || 0 },
   ];
 
   const pieData = [
     { name: 'New', value: leads.filter(l => l.status === 'New').length },
     { name: 'Contacted', value: leads.filter(l => l.status === 'Contacted').length },
     { name: 'Proposal', value: leads.filter(l => l.status === 'Proposal').length },
-  ];
+  ].filter(d => d.value > 0);
 
   const COLORS = ['#4f46e5', '#818cf8', '#c7d2fe'];
 
@@ -101,35 +100,41 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, leads }) => {
             Lead Analytics
           </h2>
           <div className="h-72 flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={100}
-                  paddingAngle={8}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="flex flex-col gap-4 ml-8">
-               {pieData.map((d, i) => (
-                 <div key={d.name} className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: COLORS[i]}}></div>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">{d.name}</span>
-                    </div>
-                    <span className="text-xl font-black text-gray-800 ml-4">{d.value}</span>
-                 </div>
-               ))}
-            </div>
+            {pieData.length > 0 ? (
+              <>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={100}
+                      paddingAngle={8}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-4 ml-8">
+                   {pieData.map((d, i) => (
+                     <div key={d.name} className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: COLORS[i]}}></div>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">{d.name}</span>
+                        </div>
+                        <span className="text-xl font-black text-gray-800 ml-4">{d.value}</span>
+                     </div>
+                   ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-gray-300 text-sm font-medium italic">No lead data to display</div>
+            )}
           </div>
         </div>
       </div>
