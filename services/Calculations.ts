@@ -34,10 +34,12 @@ export const numberToWords = (num: number): string => {
   const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
   const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
   
-  // Create a local string variable to avoid assigning a string to the 'num' parameter which is typed as a number.
-  const numStr = num.toString();
-  if (numStr.length > 9) return 'overflow';
-  const n = ('000000000' + numStr).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+  const roundedNum = Math.floor(num);
+  const numStr = roundedNum.toString();
+  if (numStr.length > 9) return 'amount too large';
+  
+  const padded = numStr.padStart(9, '0');
+  const n = padded.match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
   if (!n) return ''; 
   
   let str = '';

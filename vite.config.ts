@@ -3,9 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Vercel deployment usually happens at the root domain
+  // Ensure the base is correct for Vercel/Root deployments
   base: '/',
   define: {
+    // This allows process.env.API_KEY to be available in the browser code
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
   },
   server: {
@@ -17,12 +18,14 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     emptyOutDir: true,
+    // Target the specific root files correctly
     rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'recharts'],
-        },
+      input: {
+        main: './index.html',
       },
     },
+  },
+  resolve: {
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   }
 });
