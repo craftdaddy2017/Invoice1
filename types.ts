@@ -57,6 +57,7 @@ export interface Invoice {
   number: string;
   date: string;
   dueDate: string;
+  poNumber?: string; // Added field
   status: InvoiceStatus;
   clientId: string;
   items: LineItem[];

@@ -1,20 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize carefully to avoid top-level crashes if key is missing
-const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.warn("Gemini API key is missing. AI features will be disabled.");
-    return null;
-  }
-  return new GoogleGenAI({ apiKey });
-};
+// Initialize with process.env.API_KEY as per instructions
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const suggestLineItemsFromPrompt = async (prompt: string) => {
   try {
-    const ai = getAiClient();
-    if (!ai) return [];
-
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Extract a list of professional invoice line items (description, quantity, estimated market rate in INR, and common GST percentage for that item in India) from the following business scenario: "${prompt}"`,
@@ -53,6 +43,7 @@ export const suggestLineItemsFromPrompt = async (prompt: string) => {
       }
     });
 
+    // Directly access .text property as per guidelines
     const text = response.text;
     if (!text) return [];
     

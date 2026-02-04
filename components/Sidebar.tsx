@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { CRAFT_DADDY_LOGO_URL } from '../assets/brand';
 
 interface SidebarProps {
   activeTab: string;
@@ -15,11 +15,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   ];
 
   return (
-    <aside className="w-64 bg-indigo-900 text-white flex flex-col no-print">
+    <aside className="w-64 bg-[#5c2c90] text-white flex flex-col no-print border-r border-white/10 transition-colors duration-300">
       <div className="p-6">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-          <div className="w-8 h-8 bg-white text-indigo-900 rounded flex items-center justify-center">B</div>
-          BOS-Cloud
+        <div className="flex flex-col gap-1 mb-2">
+          <div className="flex items-center gap-3">
+            {/* Using the Official Brand Asset */}
+            <div className="bg-white p-1 rounded-lg">
+               <img src={CRAFT_DADDY_LOGO_URL} className="h-10 w-auto object-contain" alt="Craft Daddy Logo" />
+            </div>
+          </div>
+          <div className="h-0.5 w-12 bg-white rounded-full opacity-30 mt-3"></div>
         </div>
       </div>
       <nav className="flex-1 px-4 py-4 space-y-1">
@@ -27,8 +32,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition ${
-              activeTab === item.id ? 'bg-indigo-800 text-white' : 'text-indigo-200 hover:bg-indigo-800 hover:text-white'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+              activeTab === item.id 
+                ? 'bg-white/20 text-white shadow-lg translate-x-1 backdrop-blur-sm' 
+                : 'text-white/70 hover:bg-white/10 hover:text-white'
             }`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,12 +45,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           </button>
         ))}
       </nav>
-      <div className="p-6 border-t border-indigo-800">
-        <div className="flex items-center gap-3">
-          <img src="https://picsum.photos/40/40" className="w-10 h-10 rounded-full border border-indigo-700" alt="Avatar" />
-          <div className="text-sm">
-            <p className="font-semibold truncate">Craft Daddy</p>
-            <p className="text-indigo-300 text-xs">Admin</p>
+      <div className="p-6 mt-auto">
+        <div className="p-4 bg-white/10 rounded-2xl border border-white/5">
+          <div className="flex items-center gap-3">
+            <img src="https://picsum.photos/40/40" className="w-10 h-10 rounded-full border border-white/20" alt="Avatar" />
+            <div className="text-sm">
+              <p className="font-bold text-white truncate">Craft Daddy</p>
+              <p className="text-white/60 text-[10px] uppercase font-black tracking-widest">Administrator</p>
+            </div>
           </div>
         </div>
       </div>

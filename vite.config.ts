@@ -1,12 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Vercel deployment usually happens at the root domain
   base: '/',
   define: {
-    // Standardize access to process.env for browser environments
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
   },
   server: {
@@ -18,8 +17,6 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     emptyOutDir: true,
-    // Use esnext for modern browser features
-    target: 'esnext',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -27,9 +24,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  resolve: {
-    // Ensure .tsx and .ts are resolved correctly
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   }
 });

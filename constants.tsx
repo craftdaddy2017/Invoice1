@@ -1,3 +1,4 @@
+import { CRAFT_DADDY_LOGO_URL } from './assets/brand';
 
 export const INDIAN_STATES = [
   { name: 'Delhi', code: '07' },
@@ -12,8 +13,11 @@ export const INDIAN_STATES = [
   { name: 'Haryana', code: '06' },
 ];
 
+export const CRAFT_DADDY_LOGO_SVG = CRAFT_DADDY_LOGO_URL;
+
 export const INITIAL_USER_PROFILE = {
   companyName: 'Craft Daddy',
+  logoUrl: CRAFT_DADDY_LOGO_URL,
   address: {
     street: 'E-167, West Vinod Nagar, I.P.Extension',
     city: 'Delhi',
