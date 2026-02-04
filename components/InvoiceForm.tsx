@@ -89,7 +89,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
     if (!aiPrompt.trim()) return;
     setIsAiLoading(true);
     const suggested = await suggestLineItemsFromPrompt(aiPrompt);
-    // Using slice instead of deprecated substr
     const mapped = suggested.map((s: any) => ({ ...s, id: Math.random().toString(36).slice(2, 11) }));
     setInvoice(prev => ({ ...prev, items: [...prev.items, ...mapped] }));
     setAiPrompt('');
@@ -101,7 +100,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-gray-100 no-print-wrapper">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-gray-100 relative">
       {/* LEFT: EDITOR PANEL */}
       <div className="w-full lg:w-1/3 bg-white border-r border-gray-200 h-full overflow-y-auto no-print z-10 flex flex-col">
         <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-20 flex justify-between items-center">
@@ -261,7 +260,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
       </div>
 
       {/* RIGHT: LIVE PREVIEW AREA */}
-      <div className="flex-1 bg-[#f0f0f7] overflow-y-auto p-4 lg:p-12 flex justify-center items-start no-print">
+      <div className="flex-1 bg-[#f0f0f7] overflow-y-auto p-4 lg:p-12 flex justify-center items-start print-view-container">
         <div id="invoice-sheet" className="w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[10mm] flex flex-col font-sans text-gray-900 overflow-hidden relative border border-gray-200">
           
           <div className="flex justify-between items-start mb-8">
@@ -288,7 +287,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-[#f3f0ff] p-4 rounded-lg">
+            <div className="bg-[#f3f0ff] p-4 rounded-lg billed-section">
                <h3 className="text-[#6338af] text-sm font-bold mb-2">Billed By</h3>
                <div className="text-[11px] leading-relaxed">
                   <p className="font-bold text-gray-900">{userProfile.companyName}</p>
@@ -297,7 +296,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
                   <p className="mt-1"><span className="font-bold">GSTIN:</span> {userProfile.gstin}</p>
                </div>
             </div>
-            <div className="bg-[#f3f0ff] p-4 rounded-lg">
+            <div className="bg-[#f3f0ff] p-4 rounded-lg billed-section">
                <h3 className="text-[#6338af] text-sm font-bold mb-2">Billed To</h3>
                <div className="text-[11px] leading-relaxed">
                   <p className="font-bold text-gray-900 uppercase">{selectedClient?.name || '---'}</p>
@@ -362,7 +361,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
           <div className="flex justify-between items-start mb-8">
              <div className="w-[60%]">
                 <p className="text-[11px]"><span className="font-bold">Total (in words) :</span> <span className="uppercase font-bold text-gray-900">{numberToWords(Math.round(totals.total))}</span></p>
-                <div className="mt-8 bg-[#f3f0ff] p-4 rounded-lg w-full">
+                <div className="mt-8 bg-[#f3f0ff] p-4 rounded-lg w-full bank-details-box">
                    <h4 className="text-[#6338af] text-sm font-bold mb-3">Bank Details</h4>
                    <div className="grid grid-cols-[110px_1fr] gap-y-1 text-[11px]">
                       <div className="text-gray-500 font-bold">Account Name</div>
@@ -420,9 +419,27 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
       
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          body { background: white !important; margin: 0 !important; padding: 0 !important; }
-          #root { display: none !important; }
-          .no-print, .no-print-wrapper > * { display: none !important; }
+          body { 
+            background: white !important; 
+            margin: 0 !important; 
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          /* Ensure we don't hide the parent root */
+          #root { display: block !important; }
+          
+          /* Force hide sidebar and editor */
+          .no-print { display: none !important; }
+          
+          /* Hide the gray background wrapper but keep the invoice sheet */
+          .print-view-container { 
+            background: transparent !important; 
+            padding: 0 !important;
+            display: block !important;
+            overflow: visible !important;
+          }
+
           #invoice-sheet {
             display: flex !important;
             visibility: visible !important;
@@ -430,12 +447,20 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
             left: 0 !important;
             top: 0 !important;
             width: 210mm !important;
-            height: 297mm !important;
+            min-height: 297mm !important;
             padding: 10mm !important;
             margin: 0 !important;
             box-shadow: none !important;
             border: none !important;
+            background: white !important;
+            z-index: 9999 !important;
           }
+
+          /* Fix for purple backgrounds missing on some browsers during print */
+          .bg-\\[\\#6338af\\] { background-color: #6338af !important; color: white !important; }
+          .bg-\\[\\#f3f0ff\\] { background-color: #f3f0ff !important; }
+          .billed-section { background-color: #f3f0ff !important; -webkit-print-color-adjust: exact; }
+          .bank-details-box { background-color: #f3f0ff !important; -webkit-print-color-adjust: exact; }
         }
       `}} />
     </div>
