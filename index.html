@@ -33,17 +33,6 @@
             border-bottom: 2px solid #ef4444;
         }
     </style>
-    <script>
-        // Global error catcher to debug "Blank Screen" issues in production
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            const display = document.getElementById('error-display');
-            if (display) {
-                display.style.display = 'block';
-                display.innerHTML = '<strong>Runtime Error:</strong> ' + msg + ' <br>at ' + url + ':' + lineNo;
-            }
-            return false;
-        };
-    </script>
 <script type="importmap">
 {
   "imports": {
@@ -61,15 +50,27 @@
 <body class="bg-gray-50 text-gray-900">
     <div id="error-display"></div>
     <div id="root">
-        <!-- Fallback content while JS loads -->
-        <div class="flex items-center justify-center h-screen">
+        <!-- Loader to show something before React takes over -->
+        <div class="flex items-center justify-center h-screen bg-gray-50">
             <div class="flex flex-col items-center gap-4">
                 <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-gray-500 font-medium animate-pulse">Initializing BOS-Cloud...</p>
+                <p class="text-gray-500 font-medium animate-pulse">Initializing System...</p>
             </div>
         </div>
     </div>
-    <!-- Standard Vite entry point -->
-    <script type="module" src="./index.tsx"></script>
+    <!-- Vite will handle the transformation of this file during build -->
+    <script type="module" src="/index.tsx"></script>
+    <script>
+        // Simple client-side error logging for debugging
+        window.onerror = function(msg, url, line, col, error) {
+            console.error("Global Error:", msg, "at", url, ":", line);
+            const errDiv = document.getElementById('error-display');
+            if (errDiv) {
+                errDiv.style.display = 'block';
+                errDiv.innerHTML = '<strong>System Error:</strong> ' + msg + ' (check console for details)';
+            }
+            return false;
+        };
+    </script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   Invoice, 
@@ -20,7 +19,7 @@ interface InvoiceFormProps {
 }
 
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave, onCancel, initialData }) => {
-  // Use a functional initializer for state to ensure bankDetails is always present even if missing in initialData
+  // Use a functional initializer for state to ensure bankDetails is always present
   const [invoice, setInvoice] = useState<Invoice>(() => {
     if (initialData) {
       return {
@@ -54,7 +53,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
   }, [selectedClient, userProfile.address.stateCode]);
 
   const totals = useMemo(() => {
-    return invoice.items.reduce((acc, item) => {
+    return (invoice.items || []).reduce((acc, item) => {
       const calc = calculateLineItem(item, isInterState);
       return {
         taxable: acc.taxable + calc.taxableValue,
@@ -89,7 +88,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
     if (!aiPrompt.trim()) return;
     setIsAiLoading(true);
     const suggested = await suggestLineItemsFromPrompt(aiPrompt);
-    const mapped = suggested.map((s: any) => ({ ...s, id: Math.random().toString(36).substr(2, 9) }));
+    // Use slice instead of substr for better support
+    const mapped = suggested.map((s: any) => ({ ...s, id: Math.random().toString(36).slice(2, 11) }));
     setInvoice(prev => ({ ...prev, items: [...prev.items, ...mapped] }));
     setAiPrompt('');
     setIsAiLoading(false);
@@ -343,7 +343,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-gray-50/30">
-                   {invoice.items.map((item, idx) => {
+                   {(invoice.items || []).map((item, idx) => {
                      const calc = calculateLineItem(item, isInterState);
                      return (
                         <tr key={item.id} className="text-[11px] text-gray-700">
