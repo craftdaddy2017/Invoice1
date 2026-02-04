@@ -2,15 +2,17 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 export const suggestLineItemsFromPrompt = async (prompt: string) => {
   try {
+    // Access the API key provided via Vite's define or environment
     const apiKey = process.env.API_KEY;
     
-    if (!apiKey || apiKey.trim() === "") {
-      console.warn('Gemini API key is not configured. Please add API_KEY to your environment variables.');
+    // STRICT CHECK: The SDK throws an error if initialized with an empty string or undefined.
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === "") {
+      console.warn('Gemini API functionality is disabled because API_KEY is missing or empty in environment variables.');
       return [];
     }
 
-    // Initialize inside the function to avoid top-level crashes if API_KEY is missing
-    const ai = new GoogleGenAI({ apiKey: apiKey });
+    // Only initialize if we definitely have a key
+    const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -55,7 +57,7 @@ export const suggestLineItemsFromPrompt = async (prompt: string) => {
     
     return JSON.parse(text);
   } catch (error) {
-    console.error('Error in AI suggestion:', error);
+    console.error('Gemini AI Service Error:', error);
     return [];
   }
 };

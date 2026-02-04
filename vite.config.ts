@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   define: {
-    // Standardizing process.env access for browser
+    // This allows the browser to access the environment variable
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
   },
