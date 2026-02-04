@@ -261,7 +261,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
 
       {/* RIGHT: LIVE PREVIEW AREA */}
       <div className="flex-1 bg-[#f0f0f7] overflow-y-auto p-4 lg:p-12 flex justify-center items-start print-view-container">
-        <div id="invoice-sheet" className="w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[10mm] flex flex-col font-sans text-gray-900 overflow-hidden relative border border-gray-200">
+        <div id="invoice-sheet" className="w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[10mm] flex flex-col font-sans text-gray-900 overflow-hidden relative border border-gray-200 box-border">
           
           <div className="flex justify-between items-start mb-8">
             <div className="w-1/2">
@@ -313,44 +313,44 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
           </div>
 
           <div className="mb-6 flex-1">
-             <table className="w-full text-left border-collapse">
+             <table className="w-full text-left border-collapse table-fixed">
                 <thead>
                    <tr className="bg-[#6338af] text-white">
-                      <th className="py-2 pl-4 text-[10px] font-bold uppercase w-[30%]">Item</th>
-                      <th className="py-2 text-center text-[10px] font-bold uppercase">GST Rate</th>
-                      <th className="py-2 text-center text-[10px] font-bold uppercase">Quantity</th>
-                      <th className="py-2 text-center text-[10px] font-bold uppercase">Rate</th>
-                      <th className="py-2 text-right text-[10px] font-bold uppercase">Amount</th>
+                      <th className="py-2 pl-4 text-[9px] font-bold uppercase w-[25%]">Item</th>
+                      <th className="py-2 text-center text-[9px] font-bold uppercase w-[10%]">GST</th>
+                      <th className="py-2 text-center text-[9px] font-bold uppercase w-[8%]">Qty</th>
+                      <th className="py-2 text-center text-[9px] font-bold uppercase w-[12%]">Rate</th>
+                      <th className="py-2 text-right text-[9px] font-bold uppercase w-[12%]">Amount</th>
                       {isInterState ? (
-                        <th className="py-2 text-right text-[10px] font-bold uppercase">IGST</th>
+                        <th className="py-2 text-right text-[9px] font-bold uppercase w-[12%]">IGST</th>
                       ) : (
                         <>
-                          <th className="py-2 text-right text-[10px] font-bold uppercase">CGST</th>
-                          <th className="py-2 text-right text-[10px] font-bold uppercase">SGST</th>
+                          <th className="py-2 text-right text-[9px] font-bold uppercase w-[10%]">CGST</th>
+                          <th className="py-2 text-right text-[9px] font-bold uppercase w-[10%]">SGST</th>
                         </>
                       )}
-                      <th className="py-2 pr-4 text-right text-[10px] font-bold uppercase">Total</th>
+                      <th className="py-2 pr-4 text-right text-[9px] font-bold uppercase w-[14%]">Total</th>
                    </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                    {(invoice.items || []).map((item, idx) => {
                      const calc = calculateLineItem(item, isInterState);
                      return (
-                        <tr key={item.id} className="text-[11px] text-gray-700 bg-gray-50/20">
-                           <td className="py-3 pl-4 font-medium">{idx + 1}. {item.description} {item.hsn ? `(HSN/SAC: ${item.hsn})` : ''}</td>
-                           <td className="py-3 text-center">{item.taxRate}%</td>
-                           <td className="py-3 text-center">{item.qty}</td>
-                           <td className="py-3 text-center">₹{item.rate.toLocaleString('en-IN')}</td>
-                           <td className="py-3 text-right">₹{calc.taxableValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <tr key={item.id} className="text-[10px] text-gray-700 bg-gray-50/20">
+                           <td className="py-3 pl-4 font-medium break-words leading-tight">{idx + 1}. {item.description} {item.hsn ? `(HSN/SAC: ${item.hsn})` : ''}</td>
+                           <td className="py-3 text-center whitespace-nowrap">{item.taxRate}%</td>
+                           <td className="py-3 text-center whitespace-nowrap">{item.qty}</td>
+                           <td className="py-3 text-center whitespace-nowrap">₹{item.rate.toLocaleString('en-IN')}</td>
+                           <td className="py-3 text-right whitespace-nowrap">₹{calc.taxableValue.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                            {isInterState ? (
-                             <td className="py-3 text-right">₹{calc.igst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                             <td className="py-3 text-right whitespace-nowrap">₹{calc.igst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                            ) : (
                              <>
-                               <td className="py-3 text-right">₹{calc.cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                               <td className="py-3 text-right">₹{calc.sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                               <td className="py-3 text-right whitespace-nowrap">₹{calc.cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                               <td className="py-3 text-right whitespace-nowrap">₹{calc.sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                              </>
                            )}
-                           <td className="py-3 pr-4 text-right font-bold">₹{calc.total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                           <td className="py-3 pr-4 text-right font-bold whitespace-nowrap">₹{calc.total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                         </tr>
                      );
                    })}
@@ -358,9 +358,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
              </table>
           </div>
 
-          <div className="flex justify-between items-start mb-8">
+          <div className="flex justify-between items-start mb-8 gap-4">
              <div className="w-[60%]">
-                <p className="text-[11px]"><span className="font-bold">Total (in words) :</span> <span className="uppercase font-bold text-gray-900">{numberToWords(Math.round(totals.total))}</span></p>
+                <p className="text-[11px] leading-relaxed"><span className="font-bold">Total (in words) :</span> <span className="uppercase font-bold text-gray-900">{numberToWords(Math.round(totals.total))}</span></p>
                 <div className="mt-8 bg-[#f3f0ff] p-4 rounded-lg w-full bank-details-box">
                    <h4 className="text-[#6338af] text-sm font-bold mb-3">Bank Details</h4>
                    <div className="grid grid-cols-[110px_1fr] gap-y-1 text-[11px]">
@@ -376,39 +376,39 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
                 </div>
              </div>
              
-             <div className="w-[35%] space-y-4">
+             <div className="w-[35%] space-y-3">
                 <div className="grid grid-cols-2 text-[11px] text-gray-700">
                    <div className="font-bold">Amount</div>
-                   <div className="text-right">₹{totals.taxable.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                   <div className="text-right whitespace-nowrap">₹{totals.taxable.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
                    
                    {isInterState ? (
                      <>
-                       <div className="font-bold mt-2">IGST</div>
-                       <div className="text-right mt-2">₹{totals.igst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                       <div className="font-bold mt-1">IGST</div>
+                       <div className="text-right mt-1 whitespace-nowrap">₹{totals.igst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
                      </>
                    ) : (
                      <>
-                       <div className="font-bold mt-2">CGST</div>
-                       <div className="text-right mt-2">₹{totals.cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
-                       <div className="font-bold mt-2">SGST</div>
-                       <div className="text-right mt-2">₹{totals.sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                       <div className="font-bold mt-1">CGST</div>
+                       <div className="text-right mt-1 whitespace-nowrap">₹{totals.cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+                       <div className="font-bold mt-1">SGST</div>
+                       <div className="text-right mt-1 whitespace-nowrap">₹{totals.sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
                      </>
                    )}
                 </div>
                 
                 <div className="pt-2 border-t border-b border-gray-900/30">
                   <div className="flex justify-between items-center py-2">
-                     <span className="text-lg font-bold text-gray-900">Total (INR)</span>
-                     <span className="text-xl font-bold text-gray-900">₹{totals.total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                     <span className="text-base font-bold text-gray-900">Total (INR)</span>
+                     <span className="text-lg font-bold text-gray-900 whitespace-nowrap">₹{totals.total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                   </div>
                 </div>
-                <div className="h-px bg-gray-900 -mt-1.5 w-full"></div>
+                <div className="h-px bg-gray-900 -mt-1 w-full"></div>
              </div>
           </div>
 
-          <div className="mt-auto">
+          <div className="mt-auto pt-4 border-t border-gray-100">
              <h4 className="text-[#6338af] text-sm font-bold mb-2">Terms and Conditions</h4>
-             <ol className="text-[11px] text-gray-600 space-y-1">
+             <ol className="text-[10px] text-gray-600 space-y-1">
                 {invoice.terms?.split('\n').map((line, i) => (
                   <li key={i}>{line}</li>
                 ))}
@@ -418,6 +418,11 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
       </div>
       
       <style dangerouslySetInnerHTML={{ __html: `
+        @page {
+          size: A4;
+          margin: 10mm;
+        }
+
         @media print {
           body { 
             background: white !important; 
@@ -426,41 +431,42 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ userProfile, clients, onSave,
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          /* Ensure we don't hide the parent root */
-          #root { display: block !important; }
           
-          /* Force hide sidebar and editor */
+          #root { display: block !important; }
           .no-print { display: none !important; }
           
-          /* Hide the gray background wrapper but keep the invoice sheet */
           .print-view-container { 
             background: transparent !important; 
             padding: 0 !important;
             display: block !important;
             overflow: visible !important;
+            width: 100% !important;
           }
 
           #invoice-sheet {
             display: flex !important;
             visibility: visible !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 210mm !important;
-            min-height: 297mm !important;
-            padding: 10mm !important;
+            position: relative !important;
+            width: 100% !important;
+            min-height: auto !important;
+            padding: 5mm !important;
             margin: 0 !important;
             box-shadow: none !important;
             border: none !important;
             background: white !important;
             z-index: 9999 !important;
+            box-sizing: border-box !important;
           }
 
-          /* Fix for purple backgrounds missing on some browsers during print */
-          .bg-\\[\\#6338af\\] { background-color: #6338af !important; color: white !important; }
-          .bg-\\[\\#f3f0ff\\] { background-color: #f3f0ff !important; }
-          .billed-section { background-color: #f3f0ff !important; -webkit-print-color-adjust: exact; }
-          .bank-details-box { background-color: #f3f0ff !important; -webkit-print-color-adjust: exact; }
+          /* Force exact colors for print */
+          .bg-\\[\\#6338af\\] { background-color: #6338af !important; -webkit-print-color-adjust: exact; }
+          .text-\\[\\#6338af\\] { color: #6338af !important; -webkit-print-color-adjust: exact; }
+          .bg-\\[\\#f3f0ff\\] { background-color: #f3f0ff !important; -webkit-print-color-adjust: exact; }
+          
+          /* Prevent page breaks inside critical elements */
+          .billed-section, .bank-details-box, tr {
+            page-break-inside: avoid !important;
+          }
         }
       `}} />
     </div>
